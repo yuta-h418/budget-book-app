@@ -8,7 +8,7 @@ const MonthlySummary = () => {
   return (
     <Grid container spacing={{ xs: 1, sm: 2 }} mb={2}>
         {/* 収入 */}
-        <Grid item xs={4} sx={{ display: "flex", flexDirection: "column" }}>
+        <Grid item xs={4} display={"flex"} flexDirection={"column"}>
             <Card 
                 sx={{ 
                     bgcolor: "blue", 
@@ -37,7 +37,7 @@ const MonthlySummary = () => {
         </Grid>
 
         {/* 支出 */}
-        <Grid item xs={4} sx={{ display: "flex", flexDirection: "column" }}>
+        <Grid item xs={4} display={"flex"} flexDirection={"column"}>
             <Card 
                 sx={{ 
                     bgcolor: "red", 
@@ -67,7 +67,7 @@ const MonthlySummary = () => {
         </Grid>
 
         {/* 残高 */}
-        <Grid item xs={4} sx={{ display: "flex", flexDirection: "column" }}>
+        <Grid item xs={4} display={"flex"} flexDirection={"column"}>
             <Card
                 sx={{ 
                     bgcolor: "green", 
