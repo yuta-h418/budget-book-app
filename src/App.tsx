@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import './App.css';
 import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
 import Home from './pages/Home';
@@ -8,8 +8,40 @@ import AppLayout from './components/layout/AppLayout';
 import {theme} from './theme/theme'
 import { ThemeProvider } from '@emotion/react';
 import { CssBaseline } from '@mui/material';
+import { Transaction } from './types/index';
+import { collection, getDocs } from "firebase/firestore";
+import { db } from './firebase';
 
 function App() {
+
+  // Firestoreエラー判定
+  function isFireStoreError(err: unknown):err is {code: string, message: string} {
+    return typeof err === "object" && err !== null && "code" in err
+  }
+
+  const[transactions,setTransactions] = useState<Transaction[]>([]);
+  useEffect(() => {
+    const fecheTransactions = async() => {
+      try {
+        const querySnapshot = await getDocs(collection(db, "Transactions"));
+        const transactionsData = querySnapshot.docs.map((doc) => {
+          return {
+            ...doc.data(),
+            id: doc.id,
+          } as Transaction
+        });
+        setTransactions(transactionsData);
+      } catch(err) {
+        if(isFireStoreError(err)) {
+          console.error("Firestoreのエラーは:", err);
+        } else {
+          console.error("一般的なエラーは:", err);
+        }
+      }
+    }
+    fecheTransactions();
+  },[])
+
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
