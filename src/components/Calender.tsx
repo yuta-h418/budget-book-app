@@ -4,8 +4,9 @@ import dayGridPlugin from '@fullcalendar/daygrid'
 import jaLocale from '@fullcalendar/core/locales/ja'
 import "../utils/calendar.css"
 import { EventContentArg } from '@fullcalendar/core'
-import { Transaction } from '../types'
+import { Balance, CalendarContent, Transaction } from '../types'
 import { calculateDailyBalances } from '../utils/financeCalculations'
+import { formatCurrency } from '../utils/formatting'
 
 interface CalenderProps {
   monthlyTransactions: Transaction[]
@@ -19,6 +20,20 @@ const Calender = ({monthlyTransactions}: CalenderProps) => {
   ]
 
   const dailyBalances = calculateDailyBalances(monthlyTransactions)
+
+  const createCalendarEvents = (dailyBalances: Record<string, Balance>): CalendarContent[] => {
+    return Object.keys(dailyBalances).map((date) => {
+      const {income, expense, balance} = dailyBalances[date]
+      return {
+        start: date,
+        income: formatCurrency(income),
+        expense: formatCurrency(expense),
+        balance: formatCurrency(balance),
+      }
+    })
+  }
+  
+  const calendarEvents = createCalendarEvents(dailyBalances)
 
   const renderEventContent = (eventInfo: EventContentArg) => {
     return (
@@ -41,10 +56,12 @@ const Calender = ({monthlyTransactions}: CalenderProps) => {
       locale={jaLocale}
       plugins={[dayGridPlugin]}
       initialView='dayGridMonth'
-      events={events}
+      events={calendarEvents}
       eventContent={renderEventContent}
     />
   )
 }
+
+
 
 export default Calender
