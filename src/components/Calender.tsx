@@ -4,13 +4,21 @@ import dayGridPlugin from '@fullcalendar/daygrid'
 import jaLocale from '@fullcalendar/core/locales/ja'
 import "../utils/calendar.css"
 import { EventContentArg } from '@fullcalendar/core'
+import { Transaction } from '../types'
+import { calculateDailyBalances } from '../utils/financeCalculations'
 
-const Calender = () => {
+interface CalenderProps {
+  monthlyTransactions: Transaction[]
+}
+
+const Calender = ({monthlyTransactions}: CalenderProps) => {
   
   const events = [
     { title: 'Meeting', start: new Date() },
     { title: 'money', start: "2025-05-21", income: 300, expense: 200, balance: 100},
   ]
+
+  const dailyBalances = calculateDailyBalances(monthlyTransactions)
 
   const renderEventContent = (eventInfo: EventContentArg) => {
     return (
