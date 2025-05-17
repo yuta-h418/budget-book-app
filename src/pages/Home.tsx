@@ -15,6 +15,7 @@ interface HomeProps {
 const Home = ({monthlyTransactions, setCurrentMonth}: HomeProps) => {
     const today = format(new Date(), "yyyy-MM-dd");
     const [currentDay, setCurrentDay] = useState(today);
+    // 1日分のデータを取得
     const dailyTransactions = monthlyTransactions.filter((transaction) => {
         return transaction.date === currentDay;
     });
@@ -28,8 +29,12 @@ const Home = ({monthlyTransactions, setCurrentMonth}: HomeProps) => {
                     setCurrentDay={setCurrentDay}
                 />
             </Box>
+            {/* 右側のコンテンツ */}
             <Box>
-                <TransactionMenu />
+                <TransactionMenu 
+                    dailyTransactions={dailyTransactions}
+                    currentDay={currentDay}
+                />
                 <TransactionForm />
             </Box>
         </Box>
