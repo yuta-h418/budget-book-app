@@ -10,12 +10,14 @@ import { formatCurrency } from '../utils/formatting'
 import interactionPlugin, { DateClickArg } from '@fullcalendar/interaction'
 import { Palette } from '@mui/icons-material'
 import { useTheme } from '@mui/material'
+import { isSameMonth } from 'date-fns'
 
 interface CalenderProps {
   monthlyTransactions: Transaction[],
   setCurrentMonth: React.Dispatch<React.SetStateAction<Date>>;
   setCurrentDay: React.Dispatch<React.SetStateAction<string>>;
   currentDay: string,
+  today: string,
 }
 
 const Calender = ({
@@ -23,6 +25,7 @@ const Calender = ({
   setCurrentMonth,
   setCurrentDay,
   currentDay,
+  today,
 }: CalenderProps) => {
   const theme = useTheme()
   const events = [
@@ -69,10 +72,17 @@ const Calender = ({
     )
   }
 
+  // 月間のデータ取得
   const handleDateSet = (datesetInfo: DatesSetArg) => {
-    setCurrentMonth(datesetInfo.view.currentStart)
+    const currentMonth = datesetInfo.view.currentStart;
+    setCurrentMonth(currentMonth);
+    const todayDate = new Date();
+    if (isSameMonth(todayDate, currentMonth)) {
+      setCurrentDay(today);
+    }
   }
 
+  // 日付選択時に実行
   const handleDateClick = (dateInfo: DateClickArg) => {
     setCurrentDay(dateInfo.dateStr);
   }
