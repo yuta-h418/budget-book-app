@@ -3,14 +3,23 @@ import React from "react";
 import CloseIcon from "@mui/icons-material/Close";
 import FastfoodIcon from "@mui/icons-material/Fastfood";
 
-const TransactionForm = () => {
+interface TransactionFormProps {
+  onCloseForm: () => void;
+  isEntryDrawerOpen: boolean;
+}
+
+const TransactionForm = ({ 
+  onCloseForm,
+  isEntryDrawerOpen,
+}: TransactionFormProps) => {
   const formWidth = 320;
+
   return (
     <Box
       sx={{
         position: "fixed",
         top: 64,
-        right: formWidth,
+        right: isEntryDrawerOpen ? formWidth : "-2%",
         width: formWidth,
         height: "100%",
         bgcolor: "background.paper",
@@ -32,6 +41,7 @@ const TransactionForm = () => {
 
         {/* 閉じるボタン */}
         <IconButton
+          onClick={onCloseForm}
           sx={{
             color: (theme) => theme.palette.grey[500],
           }}
