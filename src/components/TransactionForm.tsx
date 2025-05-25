@@ -1,8 +1,25 @@
 import { Box, Button, ButtonGroup, IconButton, ListItemIcon, MenuItem, Stack, TextField, Typography, } from "@mui/material";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import CloseIcon from "@mui/icons-material/Close";
-import FastfoodIcon from "@mui/icons-material/Fastfood";
 import { Controller, useForm } from "react-hook-form";
+import { ExpenseCategory, IncomeCategory } from "../types";
+import { JSX } from 'react/jsx-runtime';
+import FastfoodIcon from "@mui/icons-material/Fastfood";
+import AlarmIcon from "@mui/icons-material/Alarm";
+import AddHomeIcon from "@mui/icons-material/AddHome";
+import Diversity3Icon from "@mui/icons-material/Diversity3";
+import SportsTennisIcon from "@mui/icons-material/SportsTennis";
+import TrainIcon from "@mui/icons-material/Train";
+import WorkIcon from "@mui/icons-material/Work";
+import AddBusinessIcon from "@mui/icons-material/AddBusiness";
+import SavingsIcon from "@mui/icons-material/Savings";
+import { calculateNewValue } from "@testing-library/user-event/dist/utils";
+import { Category } from "@mui/icons-material";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { transactionSchema } from "../validations/schema";
+import { z } from "zod";
+
+type FormValues = z.infer<typeof transactionSchema>;
 
 interface TransactionFormProps {
   onCloseForm: () => void;
@@ -12,6 +29,11 @@ interface TransactionFormProps {
 
 type IncomeExpense = "income" | "expense";
 
+interface CategoryItem {
+  label: IncomeCategory | ExpenseCategory;
+  icon: JSX.Element;
+}
+
 const TransactionForm = ({ 
   onCloseForm,
   isEntryDrawerOpen,
@@ -19,14 +41,38 @@ const TransactionForm = ({
 }: TransactionFormProps) => {
   const formWidth = 320;
 
-  const { control, setValue, watch } = useForm({
+  const expenseCategories: CategoryItem[] = [
+    { label: "食費", icon: <FastfoodIcon fontSize='small' /> },
+    { label: "日用品", icon: <AlarmIcon fontSize='small' /> },
+    { label: "住居費", icon: <AddHomeIcon fontSize='small' /> },
+    { label: "交際費", icon: <Diversity3Icon fontSize='small' /> },
+    { label: "娯楽", icon: <SportsTennisIcon fontSize='small' /> },
+    { label: "交通費", icon: <TrainIcon fontSize='small' /> },
+  ];
+
+  const incomeCategories: CategoryItem[] = [
+    { label: "給与", icon: <WorkIcon fontSize='small' /> },
+    { label: "副収入", icon: <AddBusinessIcon fontSize='small' /> },
+    { label: "お小遣い", icon: <SavingsIcon fontSize='small' /> },
+  ];
+
+  const [categories, setCategories] = useState(expenseCategories);
+
+  const { 
+    control, 
+    setValue, 
+    watch, 
+    formState:{ errors },
+    handleSubmit,
+  } = useForm<FormValues>({
     defaultValues: {
       type: "expense",
       date: currentDay,
       amount: 0,
       category: "",
       content: "",
-    }
+    },
+    resolver: zodResolver(transactionSchema),
   });
 
   const incomeExpenseToggle = (type: IncomeExpense) => {
@@ -34,6 +80,16 @@ const TransactionForm = ({
   };
 
   const currentType = watch("type");
+
+  useEffect(() => {
+    const newCategories = 
+      currentType === "expense" ? expenseCategories : incomeCategories;
+      setCategories(newCategories);
+  }, [currentType]);
+
+  const onSubmit = (data: any) => {
+    console.log(data);
+  }
 
   useEffect(() => {
     setValue("date", currentDay);
@@ -76,7 +132,7 @@ const TransactionForm = ({
       </Box>
 
       {/* フォーム要素 */}
-      <Box component={"form"}>
+      <Box component={"form"} onSubmit={handleSubmit(onSubmit)}>
         <Stack spacing={2}>
 
           {/* 収支切り替えボタン */}
@@ -121,6 +177,8 @@ const TransactionForm = ({
                 InputLabelProps={{
                   shrink: true,
                 }}
+                error={!!errors.date}
+                helperText={errors.date?.message}
               />
             )}
           />
@@ -131,18 +189,19 @@ const TransactionForm = ({
             control={control}
             render={({ field }) => (
               <TextField
+                error={!!errors.category}
+                helperText={errors.category?.message}
                 {...field}
                 id="カテゴリ"
                 label="カテゴリ"
-                select 
-                value={"食費"}
+                select
               >
-                <MenuItem value={"食費"}>
-                  <ListItemIcon>
-                    <FastfoodIcon />
-                  </ListItemIcon>
-                  食費
-                </MenuItem>
+                {categories.map((category, index) => (
+                  <MenuItem value={category.label} key={index}>
+                    <ListItemIcon>{category.icon}</ListItemIcon>
+                    {category.label}
+                  </MenuItem>
+                ))}
               </TextField>
             )}
           />
@@ -153,7 +212,14 @@ const TransactionForm = ({
             control={control}
             render={({ field }) => (
               <TextField
+                error={!!errors.amount}
+                helperText={errors.amount?.message}
                 {...field}
+                value={field.value === 0 ? "" : field.value}
+                onChange={(e) => {
+                  const newValue = parseInt(e.target.value, 10) || 0;
+                  field.onChange(newValue);
+                }}
                 label="金額"
                 type="number"
               />
@@ -166,6 +232,8 @@ const TransactionForm = ({
             control={control}
             render={({ field }) => (
               <TextField
+                error={!!errors.content}
+                helperText={errors.content?.message}
                 {...field}
                 label="内容"
                 type="text"
