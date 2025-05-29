@@ -9,10 +9,11 @@ import {theme} from './theme/theme'
 import { ThemeProvider } from '@emotion/react';
 import { CssBaseline } from '@mui/material';
 import { Transaction } from './types/index';
-import { collection, getDocs } from "firebase/firestore";
+import { addDoc, collection, getDocs } from "firebase/firestore";
 import { db } from './firebase';
 import { format } from 'date-fns';
 import { formatMonth } from './utils/formatting';
+import { Schema } from './validations/schema';
 
 function App() {
 
@@ -49,7 +50,33 @@ function App() {
   // 該当月分のデータのみ取得
   const monthlyTransactions = transactions.filter((transaction) => {
     return transaction.date.startsWith(formatMonth(currentMonth))
-  })
+  });
+
+  const handleSaveTransaction = async (transaction: Schema) => {
+    try {
+      // firestoreに保存
+      const docRef = await addDoc(collection(db, "Transactions"), transaction);
+
+      const newTransaction = {
+        id: docRef.id,
+        ...transaction
+      } as Transaction;
+
+      setTransactions((prevTransaction) => [
+        ...transactions, 
+        newTransaction,
+      ]);
+
+    } catch(err) {
+      if(isFireStoreError(err)) {
+        console.log("firestoreのエラーは：", err);
+
+      } else {
+
+      }
+
+    }
+  }
 
   return (
     <ThemeProvider theme={theme}>
@@ -57,13 +84,20 @@ function App() {
       <Router>
         <Routes>
           <Route path="/" element={<AppLayout />}>
-            <Route index element={<Home monthlyTransactions={monthlyTransactions} setCurrentMonth={setCurrentMonth}/>}/>
+            <Route index 
+              element={
+                <Home 
+                  monthlyTransactions={monthlyTransactions}
+                  setCurrentMonth={setCurrentMonth}
+                  onSaveTransaction={handleSaveTransaction}
+                />
+              }
+            />
             <Route path="/report" element={<Report />}/>
             <Route path="*" element={<NoMatch />}/>
           </Route>
         </Routes>
       </Router>
-
     </ThemeProvider>
   );
 }

@@ -1,7 +1,7 @@
 import { Box, Button, ButtonGroup, IconButton, ListItemIcon, MenuItem, Stack, TextField, Typography, } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import CloseIcon from "@mui/icons-material/Close";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, useForm, SubmitHandler } from "react-hook-form";
 import { ExpenseCategory, IncomeCategory } from "../types";
 import { JSX } from 'react/jsx-runtime';
 import FastfoodIcon from "@mui/icons-material/Fastfood";
@@ -16,7 +16,7 @@ import SavingsIcon from "@mui/icons-material/Savings";
 import { calculateNewValue } from "@testing-library/user-event/dist/utils";
 import { Category } from "@mui/icons-material";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { transactionSchema } from "../validations/schema";
+import { Schema, transactionSchema } from "../validations/schema";
 import { z } from "zod";
 
 type FormValues = z.infer<typeof transactionSchema>;
@@ -25,6 +25,7 @@ interface TransactionFormProps {
   onCloseForm: () => void;
   isEntryDrawerOpen: boolean;
   currentDay: string;
+  onSaveTransaction: ( transaction: Schema ) => Promise<void>;
 }
 
 type IncomeExpense = "income" | "expense";
@@ -38,6 +39,7 @@ const TransactionForm = ({
   onCloseForm,
   isEntryDrawerOpen,
   currentDay,
+  onSaveTransaction,
 }: TransactionFormProps) => {
   const formWidth = 320;
 
@@ -64,7 +66,7 @@ const TransactionForm = ({
     watch, 
     formState:{ errors },
     handleSubmit,
-  } = useForm<FormValues>({
+  } = useForm<Schema>({
     defaultValues: {
       type: "expense",
       date: currentDay,
@@ -87,8 +89,9 @@ const TransactionForm = ({
       setCategories(newCategories);
   }, [currentType]);
 
-  const onSubmit = (data: any) => {
+  const onSubmit: SubmitHandler<Schema> = (data) => {
     console.log(data);
+    onSaveTransaction(data);
   }
 
   useEffect(() => {
