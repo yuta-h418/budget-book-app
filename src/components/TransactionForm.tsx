@@ -2,7 +2,7 @@ import { Box, Button, ButtonGroup, IconButton, ListItemIcon, MenuItem, Stack, Te
 import React, { useEffect, useState } from "react";
 import CloseIcon from "@mui/icons-material/Close";
 import { Controller, useForm, SubmitHandler } from "react-hook-form";
-import { ExpenseCategory, IncomeCategory } from "../types";
+import { ExpenseCategory, IncomeCategory, Transaction } from "../types";
 import { JSX } from 'react/jsx-runtime';
 import FastfoodIcon from "@mui/icons-material/Fastfood";
 import AlarmIcon from "@mui/icons-material/Alarm";
@@ -26,6 +26,8 @@ interface TransactionFormProps {
   isEntryDrawerOpen: boolean;
   currentDay: string;
   onSaveTransaction: ( transaction: Schema ) => Promise<void>;
+  selectedTransaction: Transaction | null,
+
 }
 
 type IncomeExpense = "income" | "expense";
@@ -40,6 +42,8 @@ const TransactionForm = ({
   isEntryDrawerOpen,
   currentDay,
   onSaveTransaction,
+  selectedTransaction,
+
 }: TransactionFormProps) => {
   const formWidth = 320;
 
@@ -92,9 +96,7 @@ const TransactionForm = ({
   }, [currentType]);
 
   const onSubmit: SubmitHandler<Schema> = (data) => {
-    console.log(data);
     onSaveTransaction(data);
-
     reset({
       type: "expense",
       date: currentDay,
@@ -103,6 +105,16 @@ const TransactionForm = ({
       content: "",
     });
   }
+
+  useEffect(() => {
+    if(selectedTransaction) {
+      setValue("type", selectedTransaction.type);
+      setValue("date", selectedTransaction.date);
+      setValue("amount", selectedTransaction.amount);
+      setValue("category", selectedTransaction.category);
+      setValue("content", selectedTransaction.content);
+    }
+  }, [selectedTransaction]);
 
   useEffect(() => {
     setValue("date", currentDay);
