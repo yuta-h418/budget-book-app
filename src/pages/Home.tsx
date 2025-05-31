@@ -35,10 +35,15 @@ const Home = ({
 
     const closeForm = () => {
         setIsEntryDrawerOpen(!isEntryDrawerOpen);
+        setSelectedTransaction(null);
     };
 
     const handleAddTransactionForm = () => {
-        setIsEntryDrawerOpen(!isEntryDrawerOpen);
+        if(selectedTransaction) {
+            setSelectedTransaction(null);
+        } else {
+            setIsEntryDrawerOpen(!isEntryDrawerOpen);
+        }
     }
 
     const handleSelectTransaction = (transaction: Transaction) => {
