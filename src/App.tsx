@@ -79,6 +79,10 @@ function App() {
     try {
       // firestireのデータ削除
       await deleteDoc(doc(db, "Transactions", transactionId));
+      const filterdTransactions = transactions.filter(
+        (transaction) => transaction.id !== transactionId
+      );
+      setTransactions(filterdTransactions);
     } catch(err) {
       if(isFireStoreError(err)) {
         console.log("firestoreのエラーは：", err);
