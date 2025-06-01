@@ -9,7 +9,7 @@ import {theme} from './theme/theme'
 import { ThemeProvider } from '@emotion/react';
 import { CssBaseline } from '@mui/material';
 import { Transaction } from './types/index';
-import { addDoc, collection, deleteDoc, doc, getDocs } from "firebase/firestore";
+import { addDoc, collection, deleteDoc, doc, getDocs, updateDoc } from "firebase/firestore";
 import { db } from './firebase';
 import { format } from 'date-fns';
 import { formatMonth } from './utils/formatting';
@@ -77,7 +77,7 @@ function App() {
 
   const handleDeleteTransaction = async (transactionId: string) => {
     try {
-      // firestireのデータ削除
+      // firestoreのデータ削除
       await deleteDoc(doc(db, "Transactions", transactionId));
       const filterdTransactions = transactions.filter(
         (transaction) => transaction.id !== transactionId
@@ -92,6 +92,23 @@ function App() {
     }
   };
 
+  const handleUpdateTransaction = async (
+    transaction: Schema, 
+    transactionId: string
+  ) => {
+    try {
+      // firestoreのデータ更新
+      const docRef = doc(db, "Transactions", transactionId);
+      await updateDoc(docRef, transaction);
+    } catch(err) {
+      if(isFireStoreError(err)) {
+        console.log("firestoreのエラーは：", err);
+      } else {
+        console.log("一般的なエラーは：", err);
+      }
+    }
+  }
+
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
@@ -105,6 +122,7 @@ function App() {
                   setCurrentMonth={setCurrentMonth}
                   onSaveTransaction={handleSaveTransaction}
                   onDeleteTransaction={handleDeleteTransaction}
+                  onUpdateTransaction={handleUpdateTransaction}
                 />
               }
             />
