@@ -132,6 +132,17 @@ const TransactionForm = ({
   }
 
   useEffect(() => {
+    // 選択肢が更新されたか確認
+    if(selectedTransaction) {
+      const categoryExists = categories.some(
+        (category) => category.label === selectedTransaction?.category
+      );
+      setValue("category", categoryExists ? selectedTransaction.category : "");
+    }
+  }, [selectedTransaction, categories]);
+
+  // フォームの内容を更新
+  useEffect(() => {
     if(selectedTransaction) {
       setValue("type", selectedTransaction.type);
       setValue("date", selectedTransaction.date);
