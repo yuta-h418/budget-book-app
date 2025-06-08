@@ -13,11 +13,20 @@ interface MonthlySelectorProps {
 
 const MonthlySelector = ({ currentMonth, setCurrentMonth }: MonthlySelectorProps) => {
 
+
+    const hadleDateChange = (newDate: Date | null) => {
+        if(newDate) {
+            setCurrentMonth(newDate);
+        }
+    }
+
+    // 先月ボタン処理
     const handlePreviousMonth = () => {
        const previousMonth = addMonths(currentMonth, -1);
        setCurrentMonth(previousMonth);
     }
 
+    // 次月ボタン処理
     const handleNextMonth = () => {
        const nextMonth = addMonths(currentMonth, 1);
        setCurrentMonth(nextMonth);
@@ -36,6 +45,7 @@ const MonthlySelector = ({ currentMonth, setCurrentMonth }: MonthlySelectorProps
                     先月
                 </Button>
                 <DatePicker
+                    onChange={hadleDateChange}
                     value={currentMonth}
                     label="年月を選択"
                     sx={{ mx: 2, background: "white" }}
